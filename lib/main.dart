@@ -144,18 +144,46 @@ class CamsListView extends StatelessWidget {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: categories.map((category) {
-          return Column(children: <Widget>[
-            Text(
-              category,
-              textAlign: TextAlign.left,
-            ),
-            // ListView(
-            //     scrollDirection: Axis.horizontal,
-            //     children: const [Text("aaa")]),
-            ...categoriesMap[category]!
-                .map((cam) => Text('${cam.name} ${cam.source}'))
-          ]);
-          ;
+          return Container(
+              decoration: const BoxDecoration(
+                  color: CupertinoColors.darkBackgroundGray,
+                  borderRadius: BorderRadius.all(Radius.circular(8))),
+              margin: const EdgeInsets.only(top: 18.0, left: 18.0, right: 18.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                        padding: const EdgeInsets.only(
+                            left: 16.0, bottom: 16, top: 16),
+                        child: Text(
+                          category,
+                          textAlign: TextAlign.left,
+                        )),
+                    SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: categoriesMap[category]!.length,
+                            itemBuilder: (context, index) {
+                              var cam =
+                                  categoriesMap[category]!.elementAt(index);
+                              return Container(
+                                  decoration: const BoxDecoration(
+                                      color: CupertinoColors.activeBlue,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(8))),
+                                  margin: const EdgeInsets.only(
+                                      top: 0.0,
+                                      left: 14.0,
+                                      right: 0.0,
+                                      bottom: 14),
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(18.0),
+                                      child:
+                                          Text('${cam.name} ${cam.source}')));
+                            })),
+                  ]));
         }).toList());
   }
 }
