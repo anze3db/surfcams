@@ -95,35 +95,50 @@ class _SurfCamsState extends State<SurfCams> {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(slivers: <Widget>[
-      const CupertinoSliverNavigationBar(largeTitle: Text('Surf Cams')),
+      const CupertinoSliverNavigationBar(
+        largeTitle: Text('Surf Cams'),
+        border: Border(
+          bottom: BorderSide(
+            color: CupertinoColors.extraLightBackgroundGray,
+            width: 1,
+          ),
+        ),
+        backgroundColor: CupertinoDynamicColor.withBrightness(
+            color: CupertinoColors.extraLightBackgroundGray,
+            darkColor: CupertinoColors.darkBackgroundGray),
+      ),
       SliverFillRemaining(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              FutureBuilder<List<Cams>>(
-                future: fetchCamsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return CamsListView(cams: snapshot.data!);
-                  } else if (snapshot.hasError) {
-                    return Text('${snapshot.error}');
-                  }
-                  // By default, show a loading spinner.
-                  return const CupertinoActivityIndicator();
-                },
-              ),
-              // const SizedBox(height: 120),
-              CupertinoButton.filled(
-                  onPressed: () {
-                    log("Cam view pressed");
-                    // Navigator.push(context,
-                    //     CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-                    //   return const VideoViewPage();
-                    // }));
-                  },
-                  child: const Text('Carcavelos'))
-            ]),
+        child: Container(
+            color: const CupertinoDynamicColor.withBrightness(
+                color: CupertinoColors.extraLightBackgroundGray,
+                darkColor: CupertinoColors.darkBackgroundGray),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  FutureBuilder<List<Cams>>(
+                    future: fetchCamsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return CamsListView(cams: snapshot.data!);
+                      } else if (snapshot.hasError) {
+                        return Text('${snapshot.error}');
+                      }
+                      // By default, show a loading spinner.
+                      return const CupertinoActivityIndicator();
+                    },
+                  ),
+                  // const SizedBox(height: 120),
+                  CupertinoButton.filled(
+                      onPressed: () {
+                        log("Cam view pressed");
+                        // Navigator.push(context,
+                        //     CupertinoPageRoute<Widget>(builder: (BuildContext context) {
+                        //   return const VideoViewPage();
+                        // }));
+                      },
+                      child: const Text('Carcavelos'))
+                ])),
       )
     ]);
   }
@@ -146,7 +161,10 @@ class CamsListView extends StatelessWidget {
         children: categories.map((category) {
           return Container(
               decoration: const BoxDecoration(
-                  color: CupertinoColors.darkBackgroundGray,
+                  color: CupertinoDynamicColor.withBrightness(
+                    color: CupertinoColors.white,
+                    darkColor: CupertinoColors.darkBackgroundGray,
+                  ),
                   borderRadius: BorderRadius.all(Radius.circular(8))),
               margin: const EdgeInsets.only(top: 18.0, left: 18.0, right: 18.0),
               child: Column(
@@ -170,7 +188,6 @@ class CamsListView extends StatelessWidget {
                                   categoriesMap[category]!.elementAt(index);
                               return Container(
                                   decoration: const BoxDecoration(
-                                      color: CupertinoColors.activeBlue,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(8))),
                                   margin: const EdgeInsets.only(
