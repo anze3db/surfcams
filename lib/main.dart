@@ -174,32 +174,34 @@ class CamsListView extends StatelessWidget {
                         child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: categoriesMap[category]!.length,
-                            itemBuilder: (context, index) {
-                              var cam =
-                                  categoriesMap[category]!.elementAt(index);
-                              return Container(
-                                  decoration: const BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(8))),
-                                  margin: const EdgeInsets.only(
-                                      top: 0.0,
-                                      left: 14.0,
-                                      right: 0.0,
-                                      bottom: 14),
-                                  child: CupertinoButton.filled(
-                                      onPressed: () {
-                                        log("Cam view pressed");
-                                        Navigator.push(context,
-                                            CupertinoPageRoute<Widget>(builder:
-                                                (BuildContext context) {
-                                          return VideoViewPage(url: cam.url);
-                                        }));
-                                      },
-                                      child:
-                                          Text('${cam.name} ${cam.source}')));
-                            })),
+                            itemBuilder: (context, index) => CamItemView(
+                                cam: categoriesMap[category]!
+                                    .elementAt(index)))),
                   ]));
         }).toList());
+  }
+}
+
+class CamItemView extends StatelessWidget {
+  final Cams cam;
+  const CamItemView({Key? key, required this.cam}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(8))),
+        margin:
+            const EdgeInsets.only(top: 0.0, left: 14.0, right: 0.0, bottom: 14),
+        child: CupertinoButton.filled(
+            onPressed: () {
+              log("Cam view pressed");
+              Navigator.push(context,
+                  CupertinoPageRoute<Widget>(builder: (BuildContext context) {
+                return VideoViewPage(url: cam.url);
+              }));
+            },
+            child: Text('${cam.name} ${cam.source}')));
   }
 }
 
