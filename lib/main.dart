@@ -129,15 +129,6 @@ class _SurfCamsState extends State<SurfCams> {
                     },
                   ),
                   // const SizedBox(height: 120),
-                  CupertinoButton.filled(
-                      onPressed: () {
-                        log("Cam view pressed");
-                        // Navigator.push(context,
-                        //     CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-                        //   return const VideoViewPage();
-                        // }));
-                      },
-                      child: const Text('Carcavelos'))
                 ])),
       )
     ]);
@@ -195,8 +186,15 @@ class CamsListView extends StatelessWidget {
                                       left: 14.0,
                                       right: 0.0,
                                       bottom: 14),
-                                  child: Padding(
-                                      padding: const EdgeInsets.all(18.0),
+                                  child: CupertinoButton.filled(
+                                      onPressed: () {
+                                        log("Cam view pressed");
+                                        Navigator.push(context,
+                                            CupertinoPageRoute<Widget>(builder:
+                                                (BuildContext context) {
+                                          return VideoViewPage(url: cam.url);
+                                        }));
+                                      },
                                       child:
                                           Text('${cam.name} ${cam.source}')));
                             })),
