@@ -108,13 +108,14 @@ class _SurfCamsState extends State<SurfCams> {
             darkColor: CupertinoColors.darkBackgroundGray),
       ),
       SliverFillRemaining(
+        hasScrollBody: false,
         child: Container(
             color: const CupertinoDynamicColor.withBrightness(
                 color: CupertinoColors.extraLightBackgroundGray,
                 darkColor: CupertinoColors.darkBackgroundGray),
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                // mainAxisAlignment: MainAxisAlignment.start,
+                // crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   FutureBuilder<List<Cams>>(
                     future: fetchCamsFuture,
@@ -128,7 +129,7 @@ class _SurfCamsState extends State<SurfCams> {
                       return const CupertinoActivityIndicator();
                     },
                   ),
-                  // const SizedBox(height: 120),
+                  const SizedBox(height: 40),
                 ])),
       )
     ]);
