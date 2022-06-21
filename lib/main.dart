@@ -165,13 +165,13 @@ class CamsListView extends StatelessWidget {
                   children: <Widget>[
                     Padding(
                         padding: const EdgeInsets.only(
-                            left: 16.0, bottom: 16, top: 16),
-                        child: Text(
-                          category,
-                          textAlign: TextAlign.left,
-                        )),
+                            left: 16.0, bottom: 8, top: 8),
+                        child: Text(category,
+                            textAlign: TextAlign.left,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold))),
                     SizedBox(
-                        height: 200,
+                        height: 120,
                         child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: categoriesMap[category]!.length,
@@ -194,15 +194,31 @@ class CamItemView extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(8))),
         margin:
             const EdgeInsets.only(top: 0.0, left: 14.0, right: 0.0, bottom: 14),
-        child: CupertinoButton.filled(
-            onPressed: () {
-              log("Cam view pressed");
-              Navigator.push(context,
-                  CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-                return VideoViewPage(url: cam.url);
-              }));
-            },
-            child: Text('${cam.name} ${cam.source}')));
+        child: SizedBox(
+            width: 120,
+            child: CupertinoButton.filled(
+                onPressed: () {
+                  log("Cam view pressed");
+                  Navigator.push(context, CupertinoPageRoute<Widget>(
+                      builder: (BuildContext context) {
+                    return GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        onTapCancel: () {
+                          // Todo, figure out why this is needed for chrome to work
+                          Navigator.pop(context);
+                        },
+                        child: VideoViewPage(url: cam.url));
+                  }));
+                },
+                padding: const EdgeInsets.only(top: 10, right: 10, left: 10),
+                child: Column(children: [
+                  Center(
+                      child: Text(cam.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold))),
+                  Text(cam.source, style: const TextStyle(fontSize: 12))
+                ]))));
   }
 }
 
