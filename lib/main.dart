@@ -228,6 +228,7 @@ class VideoView extends StatefulWidget {
 
 class _VideoViewState extends State<VideoView> {
   late VideoPlayerController _controller;
+  bool _isError = false;
 
   @override
   void initState() {
@@ -236,21 +237,45 @@ class _VideoViewState extends State<VideoView> {
       ..initialize().then((_) {
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         setState(() {
+          log('${_controller.value.isPlaying}, ${_controller.value.isBuffering}, ${_controller.value.isInitialized}');
           if (!_controller.value.isPlaying) {
             _controller.play();
           }
         });
+      }, onError: (error) {
+        setState(() {
+          _isError = true;
+        });
+        log('Error: $error');
       });
   }
 
   @override
   Widget build(BuildContext context) {
-    return _controller.value.isInitialized
-        ? AspectRatio(
+    if (_isError) {
+      return const Center(
+          child: Text('Error Loading Cam',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: CupertinoColors.white)));
+    }
+    if (!_controller.value.isPlaying) {
+      return const CupertinoActivityIndicator(
+          color: CupertinoColors.white, radius: 20);
+    }
+    return Center(child: OrientationBuilder(builder: (context, orientation) {
+      var isPortrait = orientation == Orientation.portrait;
+      return Center(
+          child: Stack(
+        //This will help to expand video in Horizontal mode till last pixel of screen
+        fit: isPortrait ? StackFit.loose : StackFit.expand,
+        children: [
+          AspectRatio(
             aspectRatio: _controller.value.aspectRatio,
             child: VideoPlayer(_controller),
-          )
-        : Container();
+          ),
+        ],
+      ));
+    }));
   }
 
   @override
