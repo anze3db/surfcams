@@ -16,7 +16,7 @@ class MainWidget extends StatelessWidget {
     return MediaQuery.fromWindow(
         child: const CupertinoApp(
             useInheritedMediaQuery: true,
-            title: 'Surf Cams',
+            title: 'Surfcams',
             home: CupertinoPageScaffold(child: SurfCams())));
   }
 }
@@ -26,21 +26,23 @@ class Cams {
   final String category;
   final String url;
   final String source;
+  final Color color;
 
-  const Cams({
-    required this.name,
-    required this.category,
-    required this.url,
-    required this.source,
-  });
+  const Cams(
+      {required this.name,
+      required this.category,
+      required this.url,
+      required this.source,
+      required this.color});
 
   factory Cams.fromJson(Map<String, dynamic> json) {
     return Cams(
-      name: json['name'] as String,
-      category: json['category'] as String,
-      url: json['url'] as String,
-      source: json['source'] as String,
-    );
+        name: json['name'] as String,
+        category: json['category'] as String,
+        url: json['url'] as String,
+        source: json['source'] as String,
+        color: Color(
+            int.parse('FF${json['color'].replaceAll("#", '')}', radix: 16)));
   }
 }
 
@@ -48,7 +50,7 @@ const camsUrl = 'https://surfcams.pecar.me/api/cams.json';
 Future<List<Cams>> fetchCams() async {
   final response = await http.get(Uri.parse(camsUrl));
   if (response.statusCode == 200) {
-    final results = jsonDecode(response.body)['cams'] as List;
+    final results = jsonDecode(utf8.decode(response.bodyBytes))['cams'] as List;
     return results.map((c) => Cams.fromJson(c)).toList();
   } else {
     throw Exception('Failed to load');
@@ -94,45 +96,44 @@ class _SurfCamsState extends State<SurfCams> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(slivers: <Widget>[
-      const CupertinoSliverNavigationBar(
-        largeTitle: Text('Surf Cams'),
-        border: Border(
-          bottom: BorderSide(
-            color: CupertinoColors.extraLightBackgroundGray,
-            width: 1,
+    return Container(
+        color: CupertinoColors.black,
+        child: CustomScrollView(slivers: <Widget>[
+          const CupertinoSliverNavigationBar(
+            largeTitle: Text('Surfcams',
+                style: TextStyle(color: CupertinoColors.white)),
+            border: Border(
+              bottom: BorderSide(
+                color: CupertinoColors.black,
+                width: 1,
+              ),
+            ),
+            backgroundColor: CupertinoColors.black,
           ),
-        ),
-        backgroundColor: CupertinoDynamicColor.withBrightness(
-            color: CupertinoColors.extraLightBackgroundGray,
-            darkColor: CupertinoColors.darkBackgroundGray),
-      ),
-      SliverFillRemaining(
-        hasScrollBody: false,
-        child: Container(
-            color: const CupertinoDynamicColor.withBrightness(
-                color: CupertinoColors.extraLightBackgroundGray,
-                darkColor: CupertinoColors.darkBackgroundGray),
-            child: Column(
-                // mainAxisAlignment: MainAxisAlignment.start,
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  FutureBuilder<List<Cams>>(
-                    future: fetchCamsFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return CamsListView(cams: snapshot.data!);
-                      } else if (snapshot.hasError) {
-                        return Text('${snapshot.error}');
-                      }
-                      // By default, show a loading spinner.
-                      return const CupertinoActivityIndicator();
-                    },
-                  ),
-                  const SizedBox(height: 40),
-                ])),
-      )
-    ]);
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Container(
+                color: CupertinoColors.black,
+                child: Column(
+                    // mainAxisAlignment: MainAxisAlignment.start,
+                    // crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      FutureBuilder<List<Cams>>(
+                        future: fetchCamsFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data != null) {
+                            return CamsListView(cams: snapshot.data!);
+                          } else if (snapshot.hasError) {
+                            return Text('${snapshot.error}');
+                          }
+                          // By default, show a loading spinner.
+                          return const CupertinoActivityIndicator();
+                        },
+                      ),
+                      const SizedBox(height: 40),
+                    ])),
+          )
+        ]));
   }
 }
 
@@ -147,31 +148,34 @@ class CamsListView extends StatelessWidget {
       for (var category in categories)
         category: cams.where((cam) => cam.category == category)
     };
+    final categoryColors = {
+      for (var category in categories)
+        category: cams.where((cam) => cam.category == category).first.color
+    };
 
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: categories.map((category) {
           return Container(
               decoration: const BoxDecoration(
-                  color: CupertinoDynamicColor.withBrightness(
-                    color: CupertinoColors.white,
-                    darkColor: CupertinoColors.darkBackgroundGray,
-                  ),
+                  color: CupertinoColors.darkBackgroundGray,
                   borderRadius: BorderRadius.all(Radius.circular(8))),
-              margin: const EdgeInsets.only(top: 18.0, left: 18.0, right: 18.0),
+              margin: const EdgeInsets.only(top: 6.0, left: 10.0, right: 10.0),
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Padding(
-                        padding: const EdgeInsets.only(
-                            left: 16.0, bottom: 8, top: 8),
+                        padding:
+                            const EdgeInsets.only(left: 8.0, bottom: 8, top: 8),
                         child: Text(category,
                             textAlign: TextAlign.left,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold))),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: categoryColors[category],
+                                fontSize: 14))),
                     SizedBox(
-                        height: 120,
+                        height: 70,
                         child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: categoriesMap[category]!.length,
@@ -193,32 +197,32 @@ class CamItemView extends StatelessWidget {
         decoration: const BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(8))),
         margin:
-            const EdgeInsets.only(top: 0.0, left: 14.0, right: 0.0, bottom: 14),
+            const EdgeInsets.only(top: 0.0, left: 6.0, right: 0.0, bottom: 6),
         child: SizedBox(
-            width: 120,
-            child: CupertinoButton.filled(
+            width: 90,
+            child: CupertinoButton(
+                color: const Color.fromARGB(255, 54, 53, 53),
                 onPressed: () {
                   log("Cam view pressed");
                   Navigator.push(context, CupertinoPageRoute<Widget>(
                       builder: (BuildContext context) {
-                    return GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        onTapCancel: () {
-                          // Todo, figure out why this is needed for chrome to work
-                          Navigator.pop(context);
-                        },
-                        child: VideoViewPage(url: cam.url));
+                    return VideoViewPage(url: cam.url);
                   }));
                 },
-                padding: const EdgeInsets.only(top: 10, right: 10, left: 10),
-                child: Column(children: [
-                  Center(
-                      child: Text(cam.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold))),
-                  Text(cam.source, style: const TextStyle(fontSize: 12))
-                ]))));
+                padding: const EdgeInsets.only(right: 10, left: 10),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(cam.name,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text(cam.source,
+                          style: const TextStyle(
+                              fontSize: 10,
+                              color: CupertinoColors.inactiveGray))
+                    ]))));
   }
 }
 
@@ -228,7 +232,16 @@ class VideoViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return VideoView(url: url);
+    return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          Navigator.pop(context);
+        },
+        onDoubleTap: () {
+          Navigator.pop(context);
+        },
+        child: Container(
+            color: CupertinoColors.black, child: VideoView(url: url)));
   }
 }
 
@@ -278,7 +291,7 @@ class _VideoViewState extends State<VideoView> {
       return const CupertinoActivityIndicator(
           color: CupertinoColors.white, radius: 20);
     }
-    return Center(child: OrientationBuilder(builder: (context, orientation) {
+    return OrientationBuilder(builder: (context, orientation) {
       var isPortrait = orientation == Orientation.portrait;
       return Center(
           child: Stack(
@@ -291,7 +304,7 @@ class _VideoViewState extends State<VideoView> {
           ),
         ],
       ));
-    }));
+    });
   }
 
   @override
