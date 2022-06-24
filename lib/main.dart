@@ -111,6 +111,12 @@ class _SurfCamsState extends State<SurfCams> {
             ),
             backgroundColor: CupertinoColors.black,
           ),
+          CupertinoSliverRefreshControl(
+            onRefresh: () async => setState(() {
+              log("Fetching after scroll up");
+              fetchCamsFuture = fetchCams();
+            }),
+          ),
           SliverFillRemaining(
             hasScrollBody: false,
             child: Container(
@@ -218,7 +224,10 @@ class CamItemView extends StatelessWidget {
                       Text(cam.name,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold)),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: CupertinoColors.white,
+                          )),
                       Text(cam.source,
                           style: const TextStyle(
                               fontSize: 10,
