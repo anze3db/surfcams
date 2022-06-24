@@ -121,24 +121,23 @@ class _SurfCamsState extends State<SurfCams> {
             hasScrollBody: false,
             child: Container(
                 color: CupertinoColors.black,
-                child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.start,
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      FutureBuilder<List<Cams>>(
-                        future: fetchCamsFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData && snapshot.data != null) {
-                            return CamsListView(cams: snapshot.data!);
-                          } else if (snapshot.hasError) {
-                            return Text('${snapshot.error}');
-                          }
-                          // By default, show a loading spinner.
-                          return const CupertinoActivityIndicator();
-                        },
-                      ),
-                      const SizedBox(height: 40),
-                    ])),
+                child: Column(children: <Widget>[
+                  FutureBuilder<List<Cams>>(
+                    future: fetchCamsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return CamsListView(cams: snapshot.data!);
+                      } else if (snapshot.hasError) {
+                        return Text('${snapshot.error}');
+                      }
+                      // By default, show a loading spinner.
+                      return const Padding(
+                          padding: EdgeInsets.only(top: 100),
+                          child: CupertinoActivityIndicator(radius: 20));
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                ])),
           )
         ]));
   }
