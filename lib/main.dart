@@ -22,37 +22,58 @@ class MainWidget extends StatelessWidget {
   }
 }
 
-class Cams {
-  final String name;
-  final String category;
-  final String url;
-  final String source;
+Color parseColor(String color) =>
+    Color(int.parse('FF${color.replaceAll("#", '')}', radix: 16));
+
+class Category {
+  final String title;
   final Color color;
+  final List<Cam> cams;
 
-  const Cams(
-      {required this.name,
-      required this.category,
-      required this.url,
-      required this.source,
-      required this.color});
+  const Category(
+      {required this.title, required this.color, required this.cams});
 
-  factory Cams.fromJson(Map<String, dynamic> json) {
-    return Cams(
-        name: json['name'] as String,
-        category: json['category'] as String,
-        url: json['url'] as String,
-        source: json['source'] as String,
+  factory Category.fromJson(Map<String, dynamic> json) {
+    return Category(
+        title: json['title'] as String,
+        cams: (json['cams'] as List)
+            .map((c) => Cam(
+                title: c['title'] as String,
+                url: c['url'] as String,
+                subTitle: c['subTitle'] as String,
+                titleColor: parseColor(c['titleColor'] as String),
+                subTitleColor: parseColor(c['subTitleColor'] as String),
+                backgroundColor: parseColor(c['backgroundColor'] as String)))
+            .toList(),
         color: Color(
             int.parse('FF${json['color'].replaceAll("#", '')}', radix: 16)));
   }
 }
 
+class Cam {
+  final String title;
+  final String subTitle;
+  final String url;
+  final Color titleColor;
+  final Color subTitleColor;
+  final Color backgroundColor;
+
+  const Cam(
+      {required this.title,
+      required this.subTitle,
+      required this.url,
+      required this.titleColor,
+      required this.subTitleColor,
+      required this.backgroundColor});
+}
+
 const camsUrl = 'https://surfcams.pecar.me/api/cams.json';
-Future<List<Cams>> fetchCams() async {
+Future<List<Category>> fetchCams() async {
   final response = await http.get(Uri.parse(camsUrl));
   if (response.statusCode == 200) {
-    final results = jsonDecode(utf8.decode(response.bodyBytes))['cams'] as List;
-    return results.map((c) => Cams.fromJson(c)).toList();
+    final results =
+        jsonDecode(utf8.decode(response.bodyBytes))['categories'] as List;
+    return results.map((c) => Category.fromJson(c)).toList();
   } else {
     throw Exception('Failed to load');
   }
@@ -82,7 +103,7 @@ class LifecycleEventHandler extends WidgetsBindingObserver {
 }
 
 class _SurfCamsState extends State<SurfCams> {
-  late Future<List<Cams>> fetchCamsFuture;
+  late Future<List<Category>> fetchCamsFuture;
 
   @override
   void initState() {
@@ -122,11 +143,11 @@ class _SurfCamsState extends State<SurfCams> {
             child: Container(
                 color: CupertinoColors.black,
                 child: Column(children: <Widget>[
-                  FutureBuilder<List<Cams>>(
+                  FutureBuilder<List<Category>>(
                     future: fetchCamsFuture,
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
-                        return CamsListView(cams: snapshot.data!);
+                        return CamsListView(categories: snapshot.data!);
                       } else if (snapshot.hasError) {
                         return Text('${snapshot.error}');
                       }
@@ -144,21 +165,11 @@ class _SurfCamsState extends State<SurfCams> {
 }
 
 class CamsListView extends StatelessWidget {
-  final List<Cams> cams;
-  const CamsListView({Key? key, required this.cams}) : super(key: key);
+  final List<Category> categories;
+  const CamsListView({Key? key, required this.categories}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final categories = cams.map((c) => c.category).toSet().toList();
-    final categoriesMap = {
-      for (var category in categories)
-        category: cams.where((cam) => cam.category == category)
-    };
-    final categoryColors = {
-      for (var category in categories)
-        category: cams.where((cam) => cam.category == category).first.color
-    };
-
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: categories.map((category) {
@@ -174,27 +185,26 @@ class CamsListView extends StatelessWidget {
                     Padding(
                         padding:
                             const EdgeInsets.only(left: 8.0, bottom: 8, top: 8),
-                        child: Text(category,
+                        child: Text(category.title,
                             textAlign: TextAlign.left,
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: categoryColors[category],
+                                color: category.color,
                                 fontSize: 14))),
                     SizedBox(
                         height: 70,
                         child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: categoriesMap[category]!.length,
+                            itemCount: category.cams.length,
                             itemBuilder: (context, index) => CamItemView(
-                                cam: categoriesMap[category]!
-                                    .elementAt(index)))),
+                                cam: category.cams.elementAt(index)))),
                   ]));
         }).toList());
   }
 }
 
 class CamItemView extends StatelessWidget {
-  final Cams cam;
+  final Cam cam;
   const CamItemView({Key? key, required this.cam}) : super(key: key);
 
   @override
@@ -207,7 +217,7 @@ class CamItemView extends StatelessWidget {
         child: SizedBox(
             width: 90,
             child: CupertinoButton(
-                color: const Color.fromARGB(255, 54, 53, 53),
+                color: cam.backgroundColor,
                 onPressed: () {
                   log("Cam view pressed");
                   Navigator.push(context, CupertinoPageRoute<Widget>(
@@ -220,17 +230,16 @@ class CamItemView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(cam.name,
+                      Text(cam.title,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: CupertinoColors.white,
+                            color: cam.titleColor,
                           )),
-                      Text(cam.source,
-                          style: const TextStyle(
-                              fontSize: 10,
-                              color: CupertinoColors.inactiveGray))
+                      Text(cam.subTitle,
+                          style:
+                              TextStyle(fontSize: 10, color: cam.subTitleColor))
                     ]))));
   }
 }
