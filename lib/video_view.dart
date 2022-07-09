@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wakelock/wakelock.dart';
@@ -10,14 +11,16 @@ class VideoViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void close() {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+          overlays: SystemUiOverlay.values);
+      Navigator.pop(context);
+    }
+
     return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () {
-          Navigator.pop(context);
-        },
-        onDoubleTap: () {
-          Navigator.pop(context);
-        },
+        onTap: close,
+        onDoubleTap: close,
         child: Container(
             color: CupertinoColors.black, child: VideoView(url: url)));
   }
@@ -42,6 +45,7 @@ class _VideoViewState extends State<VideoView> {
     super.initState();
 
     Wakelock.enable();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     _controller = VideoPlayerController.network(widget.url)
       ..initialize().then((_) {
