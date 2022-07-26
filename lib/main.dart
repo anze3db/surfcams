@@ -22,6 +22,21 @@ class MainWidget extends StatelessWidget {
   }
 }
 
+class LifecycleEventHandler extends WidgetsBindingObserver {
+  final AsyncCallback resumeCallBack;
+  LifecycleEventHandler({required this.resumeCallBack});
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    log("App lifecyle");
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+    log("App lifecyle resumed");
+    await resumeCallBack();
+  }
+}
+
 Color parseColor(String color) =>
     Color(int.parse('FF${color.replaceAll("#", '')}', radix: 16));
 
@@ -85,21 +100,6 @@ class SurfCams extends StatefulWidget {
   @override
   // ignore: library_private_types_in_public_api
   _SurfCamsState createState() => _SurfCamsState();
-}
-
-class LifecycleEventHandler extends WidgetsBindingObserver {
-  final AsyncCallback resumeCallBack;
-  LifecycleEventHandler({required this.resumeCallBack});
-
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    log("App lifecyle");
-    if (state != AppLifecycleState.resumed) {
-      return;
-    }
-    log("App lifecyle resumed");
-    await resumeCallBack();
-  }
 }
 
 class _SurfCamsState extends State<SurfCams> {
