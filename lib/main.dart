@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'video_view.dart';
 
@@ -84,14 +85,31 @@ class Cam {
 
 const camsUrl = 'https://surfcams.pecar.me/api/cams.json';
 Future<List<Category>> fetchCams() async {
-  final response = await http.get(Uri.parse(camsUrl));
-  if (response.statusCode == 200) {
-    final results =
-        jsonDecode(utf8.decode(response.bodyBytes))['categories'] as List;
-    return results.map((c) => Category.fromJson(c)).toList();
-  } else {
-    throw Exception('Failed to load');
+  String bodyStr;
+  final prefs = await SharedPreferences.getInstance();
+
+  try {
+    final response = await http.get(Uri.parse(camsUrl));
+    if (response.statusCode != 200) {
+      throw Exception('Status code was not 200');
+    }
+    log('Fetched cams from server');
+    bodyStr = utf8.decode(response.bodyBytes);
+    await prefs.setString('cams', bodyStr);
+  } catch (e) {
+    log(e.toString());
+    final cached = prefs.getString('cams');
+    if (cached != null) {
+      bodyStr = cached;
+      log('Fetched cams from cache');
+    } else {
+      throw Exception('Failed to load cams');
+    }
   }
+
+  final results = jsonDecode(bodyStr)['categories'] as List;
+
+  return results.map((c) => Category.fromJson(c)).toList();
 }
 
 class SurfCams extends StatefulWidget {
@@ -149,7 +167,13 @@ class _SurfCamsState extends State<SurfCams> {
                       if (snapshot.hasData && snapshot.data != null) {
                         return CamsListView(categories: snapshot.data!);
                       } else if (snapshot.hasError) {
-                        return Text('${snapshot.error}');
+                        return Padding(
+                            padding: const EdgeInsets.only(top: 32),
+                            child: Text('${snapshot.error}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: CupertinoColors.white,
+                                    fontSize: 14)));
                       }
                       // By default, show a loading spinner.
                       return const Padding(

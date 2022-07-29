@@ -38,6 +38,7 @@ dependencies:
   video_player: ^2.4.5
   http: ^0.13.4
   wakelock: ^0.6.1+2
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:
