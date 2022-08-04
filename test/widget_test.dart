@@ -5,26 +5,26 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:surfcams/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Empty SurfcamListView', (WidgetTester tester) async {
+    await tester
+        .pumpWidget(const CupertinoApp(home: CamsListView(categories: [])));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('No cams found'), findsOneWidget);
+  });
+  testWidgets('SurfcamListView with single', (WidgetTester tester) async {
+    const cat1 = Category(
+        title: "My Category", color: CupertinoColors.activeBlue, cams: []);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester
+        .pumpWidget(const CupertinoApp(home: CamsListView(categories: [cat1])));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('No cams found'), findsNothing);
+    expect(find.text('My Category'), findsOneWidget);
   });
 }
