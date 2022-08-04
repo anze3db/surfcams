@@ -194,6 +194,10 @@ class CamsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (categories.isEmpty) {
+      return const Padding(
+          padding: EdgeInsets.only(top: 100), child: Text('No cams found'));
+    }
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: categories.map((category) {
