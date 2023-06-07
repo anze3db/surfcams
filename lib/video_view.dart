@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,6 +46,7 @@ class DetailView extends StatefulWidget {
 
 class _DetailViewState extends State<DetailView> {
   late WebViewController _controller;
+  double height = 0;
 
   @override
   void initState() {
@@ -59,7 +61,13 @@ class _DetailViewState extends State<DetailView> {
             // Update loading bar.
           },
           onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
+          onPageFinished: (String url) async {
+            var newHeight = await _controller.runJavaScriptReturningResult(
+                "document.documentElement.scrollHeight;");
+            setState(() {
+              height = double.parse(newHeight.toString());
+            });
+          },
           onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) {
             return NavigationDecision.navigate;
@@ -73,8 +81,10 @@ class _DetailViewState extends State<DetailView> {
   Widget build(BuildContext context) {
     return SizedBox(
         width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: WebViewWidget(controller: _controller));
+        height: height,
+        child: WebViewWidget(
+          controller: _controller,
+        ));
   }
 
   @override
