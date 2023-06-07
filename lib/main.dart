@@ -56,6 +56,7 @@ class Category {
             .map((c) => Cam(
                 title: c['title'] as String,
                 url: c['url'] as String,
+                detailUrl: c['detailUrl'] as String,
                 subTitle: c['subTitle'] as String,
                 titleColor: parseColor(c['titleColor'] as String),
                 subTitleColor: parseColor(c['subTitleColor'] as String),
@@ -70,6 +71,7 @@ class Cam {
   final String title;
   final String subTitle;
   final String url;
+  final String detailUrl;
   final Color titleColor;
   final Color subTitleColor;
   final Color backgroundColor;
@@ -78,6 +80,7 @@ class Cam {
       {required this.title,
       required this.subTitle,
       required this.url,
+      required this.detailUrl,
       required this.titleColor,
       required this.subTitleColor,
       required this.backgroundColor});
@@ -250,7 +253,8 @@ class CamItemView extends StatelessWidget {
                   log("Cam view pressed");
                   Navigator.push(context, CupertinoPageRoute<Widget>(
                       builder: (BuildContext context) {
-                    return VideoViewPage(url: cam.url);
+                    return VideoViewPage(
+                        url: cam.url, detailUrl: cam.detailUrl);
                   }));
                 },
                 padding: const EdgeInsets.only(right: 10, left: 10),
