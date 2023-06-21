@@ -149,10 +149,14 @@ class _VideoViewState extends State<VideoView> {
 
     return OrientationBuilder(builder: (context, orientation) {
       var isPortrait = orientation == Orientation.portrait;
+      var height =
+          MediaQuery.of(context).size.width / _controller.value.aspectRatio;
+      if (height > MediaQuery.of(context).size.height) {
+        height = MediaQuery.of(context).size.height;
+      }
       return SizedBox(
           width: MediaQuery.of(context).size.width,
-          height:
-              MediaQuery.of(context).size.width / _controller.value.aspectRatio,
+          height: height,
           child: Center(
               child: Stack(
             //This will help to expand video in Horizontal mode till last pixel of screen
